@@ -1,0 +1,329 @@
+--==// SPONGE HUB //==--
+-- Dark Style Script
+-- Made by Sponge Scripts
+
+local player = game.Players.LocalPlayer
+
+local sgui = Instance.new("ScreenGui", player:WaitForChild("PlayerGui"))
+sgui.Name = "SpongeHub"
+sgui.ResetOnSpawn = false
+
+local frame = Instance.new("Frame", sgui)
+frame.Size = UDim2.new(0, 280, 0, 350)  -- Increased height for new button
+frame.Position = UDim2.new(0.05, 0, 0.3, 0)
+frame.BackgroundColor3 = Color3.fromRGB(15, 15, 25)
+frame.BorderSizePixel = 0
+frame.Active = true
+frame.Draggable = true
+
+-- Title Bar
+local titleBar = Instance.new("Frame", frame)
+titleBar.Size = UDim2.new(1, 0, 0, 30)
+titleBar.BackgroundColor3 = Color3.fromRGB(25, 25, 35)
+titleBar.BorderSizePixel = 0
+
+local title = Instance.new("TextLabel", titleBar)
+title.Size = UDim2.new(1, 0, 1, 0)
+title.BackgroundTransparency = 1
+title.Text = "🧽 SPONGE HUB"
+title.Font = Enum.Font.GothamBold
+title.TextSize = 16
+title.TextColor3 = Color3.fromRGB(0, 200, 255)
+
+local UICorner = Instance.new("UICorner", frame)
+UICorner.CornerRadius = UDim.new(0, 8)
+
+-- Main content area
+local contentFrame = Instance.new("Frame", frame)
+contentFrame.Size = UDim2.new(1, -20, 1, -40)
+contentFrame.Position = UDim2.new(0, 10, 0, 35)
+contentFrame.BackgroundTransparency = 1
+
+local list = Instance.new("UIListLayout", contentFrame)
+list.Padding = UDim.new(0, 8)
+list.HorizontalAlignment = Enum.HorizontalAlignment.Center
+list.VerticalAlignment = Enum.VerticalAlignment.Top
+list.SortOrder = Enum.SortOrder.LayoutOrder
+
+--==// BUTTON FUNCTION (DARK STYLE) //==--
+
+local function newButton(txt, callback)
+    local b = Instance.new("TextButton", contentFrame)
+    b.Size = UDim2.new(1, 0, 0, 38)
+    b.BackgroundColor3 = Color3.fromRGB(30, 30, 45)
+    b.TextColor3 = Color3.fromRGB(220, 220, 255)
+    b.Font = Enum.Font.GothamMedium
+    b.TextSize = 14
+    b.Text = txt
+    b.AutoButtonColor = false
+    
+    local btnCorner = Instance.new("UICorner", b)
+    btnCorner.CornerRadius = UDim.new(0, 6)
+    
+    -- Hover effects
+    b.MouseEnter:Connect(function()
+        b.BackgroundColor3 = Color3.fromRGB(40, 40, 60)
+    end)
+    
+    b.MouseLeave:Connect(function()
+        b.BackgroundColor3 = Color3.fromRGB(30, 30, 45)
+    end)
+    
+    b.MouseButton1Click:Connect(function()
+        b.BackgroundColor3 = Color3.fromRGB(50, 50, 75)
+        callback(b)
+        task.wait(0.1)
+        b.BackgroundColor3 = Color3.fromRGB(30, 30, 45)
+    end)
+end
+
+--==// BRING SYSTEM //==--
+
+local angle = 0
+local function getPos()
+    local hrp = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
+    if not hrp then return CFrame.new() end
+    angle += 0.7
+    return hrp.CFrame * CFrame.new(math.cos(math.rad(angle))*8, 4, math.sin(math.rad(angle))*8)
+end
+
+local function bring(item)
+    if not item then return end
+    local part = item:FindFirstChild("Handle")
+        or item:FindFirstChildWhichIsA("BasePart")
+        or (item:IsA("Model") and item.PrimaryPart)
+
+    if part then
+        part.CFrame = getPos()
+        task.wait(0.07)
+
+        local p = item:FindFirstChildWhichIsA("ProximityPrompt")
+        if p then fireproximityprompt(p) end
+    end
+end
+
+--==// LOAD INFINITE YIELD FUNCTION //==--
+
+local function loadInfiniteYield(button)
+    button.Text = "🌀 LOADING IY..."
+    
+    local success, errorMsg = pcall(function()
+        -- Try to load Infinite Yield from GitHub
+        local url = "https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source"
+        local script = game:HttpGet(url, true)
+        loadstring(script)()
+    end)
+    
+    if success then
+        button.Text = "🌀 IY LOADED!"
+        
+        -- Show notification
+        game:GetService("StarterGui"):SetCore("SendNotification", {
+            Title = "Sponge Hub";
+            Text = "Infinite Yield Loaded!";
+            Icon = "rbxassetid://6034509993";
+            Duration = 3;
+            Button1 = "OK"
+        })
+        
+        -- Play success sound
+        local s = Instance.new("Sound")
+        s.SoundId = "rbxassetid://3570576887"  -- Success sound
+        s.Volume = 0.3
+        s.Parent = game:GetService("SoundService")
+        s:Play()
+        task.delay(2, function() s:Destroy() end)
+    else
+        button.Text = "🌀 FAILED TO LOAD"
+        
+        -- Try alternative method
+        task.wait(1)
+        button.Text = "🌀 TRYING ALT..."
+        
+        local success2 = pcall(function()
+            loadstring(game:HttpGet('https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source'))()
+        end)
+        
+        if success2 then
+            button.Text = "🌀 IY LOADED!"
+        else
+            button.Text = "🌀 LOAD FAILED"
+            
+            -- Show error notification
+            game:GetService("StarterGui"):SetCore("SendNotification", {
+                Title = "Sponge Hub";
+                Text = "Failed to load Infinite Yield";
+                Icon = "rbxassetid://6034684957";  -- Error icon
+                Duration = 5;
+                Button1 = "OK"
+            })
+        end
+    end
+    
+    task.wait(2)
+    button.Text = "🌀 LOAD INFINITE YIELD"
+end
+
+--==// BUTTONS //==--
+
+-- Load Infinite Yield Button
+newButton("🌀 LOAD INFINITE YIELD", loadInfiniteYield)
+
+-- Bring All Jelly
+newButton("🔵 Bring All Jelly", function(b)
+    b.Text = "🔵 Working..."
+    angle = 0
+    local c = 0
+
+    for _,v in workspace.LootDrops:GetDescendants() do
+        if v.Name:find("Jelly") then
+            bring(v)
+            c += 1
+        end
+    end
+    
+    b.Text = (c > 0) and ("🔵 "..c.." Jelly!") or "No Jelly"
+    task.wait(2)
+    b.Text = "🔵 Bring All Jelly"
+end)
+
+-- Bring Food
+newButton("🍔 Bring Food", function(b)
+    b.Text = "🍔 Working..."
+    angle = 0
+    local c = 0
+    local f = {"ChocolateBar","CannedBread","KelpShake","Acorn","JellyPatty","BlueJellyPatty","KrabbyPatty"}
+
+    for _,v in workspace.LootDrops:GetDescendants() do
+        if table.find(f, v.Name) then
+            bring(v)
+            c += 1
+        end
+    end
+
+    b.Text = (c > 0) and ("🍔 "..c.." Food!") or "No Food"
+    task.wait(2)
+    b.Text = "🍔 Bring Food"
+end)
+
+-- Bring Scrap
+newButton("🔧 Bring Scrap", function(b)
+    b.Text = "🔧 Working..."
+    angle = 0
+    local c = 0
+    local s = {"ToxicBarrel","BrokenMotorcycle","CyclopsHelmet","RubberTire","Muffler","OpenCan"}
+
+    for _,v in workspace.LootDrops:GetDescendants() do
+        if table.find(s, v.Name) then
+            bring(v)
+            c += 1
+        end
+    end
+
+    b.Text = (c > 0) and ("🔧 "..c.." Scrap!") or "No Scrap"
+    task.wait(2)
+    b.Text = "🔧 Bring Scrap"
+end)
+
+-- Bring Bandages
+newButton("🩹 Bring Bandages", function(b)
+    b.Text = "🩹 Healing..."
+    angle = 0
+    local c = 0
+
+    local bandagesFolder = workspace.LootDrops:FindFirstChild("Bandages")
+    if bandagesFolder then
+        for _, bandage in bandagesFolder:GetChildren() do
+            if bandage:IsA("Model") or bandage:IsA("BasePart") then
+                bring(bandage)
+                c += 1
+            end
+        end
+    else
+        for _,v in workspace.LootDrops:GetDescendants() do
+            if v.Name:find("Bandage") or v.Name == "Bandage" then
+                bring(v)
+                c += 1
+            end
+        end
+    end
+
+    b.Text = (c > 0) and ("🩹 +"..c.." HP!") or "No Bandages"
+    task.wait(2)
+    b.Text = "🩹 Bring Bandages"
+end)
+
+-- Rescue All Losted
+newButton("🦀 RESCUE ALL LOSTED", function(b)
+    b.Text = "🦀 RESCUING..."
+    
+    local char = player.Character or player.CharacterAdded:Wait()
+    local root = char:FindFirstChild("HumanoidRootPart")
+    if not root then 
+        b.Text = "🦀 NO HRP"
+        task.wait(2)
+        b.Text = "🦀 RESCUE ALL LOSTED"
+        return 
+    end
+
+    local saved = 0
+    local names = {"MrKrabs", "SpongeBob", "Patrick", "Squidward", "Sandy"}
+    
+    for _, name in pairs(names) do
+        for _, obj in pairs(workspace:GetDescendants()) do
+            if obj:IsA("Model") and obj.Name == name then
+                local primary = obj.PrimaryPart or obj:FindFirstChildWhichIsA("BasePart")
+                if primary then
+                    primary.CFrame = root.CFrame * CFrame.new(0, 0, -5 - (saved * 2))
+                    saved = saved + 1
+                    task.wait(0.1)
+                    break
+                end
+            end
+        end
+    end
+
+    if saved > 0 then
+        b.Text = "🦀 " .. saved .. "/5 SAVED"
+    else
+        b.Text = "🦀 NOT FOUND"
+    end
+    
+    task.wait(1.5)
+    b.Text = "🦀 RESCUE ALL LOSTED"
+end)
+
+-- Status Label
+local statusLabel = Instance.new("TextLabel", contentFrame)
+statusLabel.Size = UDim2.new(1, 0, 0, 20)
+statusLabel.BackgroundTransparency = 1
+statusLabel.Text = "Script made Sponge Scripts!"
+statusLabel.TextColor3 = Color3.fromRGB(100, 100, 150)
+statusLabel.TextSize = 10
+statusLabel.Font = Enum.Font.Gotham
+statusLabel.TextXAlignment = Enum.TextXAlignment.Center
+
+-- NOTIFICAÇÃO 
+game:GetService("StarterGui"):SetCore("SendNotification", {
+    Title = "Sponge Hub";
+    Text = "Dark Style Script Loaded";
+    Icon = "rbxassetid://6034509993";
+    Duration = 5;
+    Button1 = "OK"
+})
+
+-- Sound effect
+task.spawn(function()
+    local s = Instance.new("Sound")
+    s.SoundId = "rbxassetid://3023237993"
+    s.Volume = 0.3
+    s.Parent = game:GetService("SoundService")
+    s:Play()
+    task.delay(3, function() s:Destroy() end)
+end)
+
+print("=================================")
+print("🧽 SPONGE HUB - Dark Style")
+print("Script made Sponge Scripts!")
+print("Infinite Yield button added!")
+print("=================================")
