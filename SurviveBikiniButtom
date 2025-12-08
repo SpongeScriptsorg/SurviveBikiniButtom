@@ -1,5 +1,4 @@
 --==// SPONGE HUB //==--
--- Dark Style Script
 -- Made by Sponge Scripts
 
 local player = game.Players.LocalPlayer
@@ -9,7 +8,7 @@ sgui.Name = "SpongeHub"
 sgui.ResetOnSpawn = false
 
 local frame = Instance.new("Frame", sgui)
-frame.Size = UDim2.new(0, 280, 0, 350)  -- Increased height for new button
+frame.Size = UDim2.new(0, 280, 0, 350)
 frame.Position = UDim2.new(0.05, 0, 0.3, 0)
 frame.BackgroundColor3 = Color3.fromRGB(15, 15, 25)
 frame.BorderSizePixel = 0
@@ -45,7 +44,32 @@ list.HorizontalAlignment = Enum.HorizontalAlignment.Center
 list.VerticalAlignment = Enum.VerticalAlignment.Top
 list.SortOrder = Enum.SortOrder.LayoutOrder
 
---==// BUTTON FUNCTION (DARK STYLE) //==--
+--==// BRING SYSTEM //==--
+
+local angle = 0
+local function getPos()
+    local hrp = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
+    if not hrp then return CFrame.new() end
+    angle += 0.7
+    return hrp.CFrame * CFrame.new(math.cos(math.rad(angle))*8, 4, math.sin(math.rad(angle))*8)
+end
+
+local function bring(item)
+    if not item then return end
+    local part = item:FindFirstChild("Handle")
+        or item:FindFirstChildWhichIsA("BasePart")
+        or (item:IsA("Model") and item.PrimaryPart)
+
+    if part then
+        part.CFrame = getPos()
+        task.wait(0.07)
+
+        local p = item:FindFirstChildWhichIsA("ProximityPrompt")
+        if p then fireproximityprompt(p) end
+    end
+end
+
+--==// BUTTON FUNCTION //==--
 
 local function newButton(txt, callback)
     local b = Instance.new("TextButton", contentFrame)
@@ -77,97 +101,7 @@ local function newButton(txt, callback)
     end)
 end
 
---==// BRING SYSTEM //==--
-
-local angle = 0
-local function getPos()
-    local hrp = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
-    if not hrp then return CFrame.new() end
-    angle += 0.7
-    return hrp.CFrame * CFrame.new(math.cos(math.rad(angle))*8, 4, math.sin(math.rad(angle))*8)
-end
-
-local function bring(item)
-    if not item then return end
-    local part = item:FindFirstChild("Handle")
-        or item:FindFirstChildWhichIsA("BasePart")
-        or (item:IsA("Model") and item.PrimaryPart)
-
-    if part then
-        part.CFrame = getPos()
-        task.wait(0.07)
-
-        local p = item:FindFirstChildWhichIsA("ProximityPrompt")
-        if p then fireproximityprompt(p) end
-    end
-end
-
---==// LOAD INFINITE YIELD FUNCTION //==--
-
-local function loadInfiniteYield(button)
-    button.Text = "🌀 LOADING IY..."
-    
-    local success, errorMsg = pcall(function()
-        -- Try to load Infinite Yield from GitHub
-        local url = "https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source"
-        local script = game:HttpGet(url, true)
-        loadstring(script)()
-    end)
-    
-    if success then
-        button.Text = "🌀 IY LOADED!"
-        
-        -- Show notification
-        game:GetService("StarterGui"):SetCore("SendNotification", {
-            Title = "Sponge Hub";
-            Text = "Infinite Yield Loaded!";
-            Icon = "rbxassetid://6034509993";
-            Duration = 3;
-            Button1 = "OK"
-        })
-        
-        -- Play success sound
-        local s = Instance.new("Sound")
-        s.SoundId = "rbxassetid://3570576887"  -- Success sound
-        s.Volume = 0.3
-        s.Parent = game:GetService("SoundService")
-        s:Play()
-        task.delay(2, function() s:Destroy() end)
-    else
-        button.Text = "🌀 FAILED TO LOAD"
-        
-        -- Try alternative method
-        task.wait(1)
-        button.Text = "🌀 TRYING ALT..."
-        
-        local success2 = pcall(function()
-            loadstring(game:HttpGet('https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source'))()
-        end)
-        
-        if success2 then
-            button.Text = "🌀 IY LOADED!"
-        else
-            button.Text = "🌀 LOAD FAILED"
-            
-            -- Show error notification
-            game:GetService("StarterGui"):SetCore("SendNotification", {
-                Title = "Sponge Hub";
-                Text = "Failed to load Infinite Yield";
-                Icon = "rbxassetid://6034684957";  -- Error icon
-                Duration = 5;
-                Button1 = "OK"
-            })
-        end
-    end
-    
-    task.wait(2)
-    button.Text = "🌀 LOAD INFINITE YIELD"
-end
-
---==// BUTTONS //==--
-
--- Load Infinite Yield Button
-newButton("🌀 LOAD INFINITE YIELD", loadInfiniteYield)
+--==// BUTTONS (ONLY BRING) //==--
 
 -- Bring All Jelly
 newButton("🔵 Bring All Jelly", function(b)
@@ -306,7 +240,7 @@ statusLabel.TextXAlignment = Enum.TextXAlignment.Center
 -- NOTIFICAÇÃO 
 game:GetService("StarterGui"):SetCore("SendNotification", {
     Title = "Sponge Hub";
-    Text = "Dark Style Script Loaded";
+    Text = "Script Loaded - Bring Only";
     Icon = "rbxassetid://6034509993";
     Duration = 5;
     Button1 = "OK"
@@ -323,7 +257,6 @@ task.spawn(function()
 end)
 
 print("=================================")
-print("🧽 SPONGE HUB - Dark Style")
+print("🧽 SPONGE HUB - Bring Only")
 print("Script made Sponge Scripts!")
-print("Infinite Yield button added!")
 print("=================================")
