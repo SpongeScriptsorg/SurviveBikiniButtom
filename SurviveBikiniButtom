@@ -69,6 +69,105 @@ local function bring(item)
     end
 end
 
+--==// FULL BRIGHT SYSTEM //==--
+
+local Lighting = game:GetService("Lighting")
+local fullBrightEnabled = false
+local originalLightingSettings = {}
+
+local function saveOriginalSettings()
+    originalLightingSettings = {
+        Brightness = Lighting.Brightness,
+        Ambient = Lighting.Ambient,
+        OutdoorAmbient = Lighting.OutdoorAmbient,
+        ClockTime = Lighting.ClockTime,
+        FogStart = Lighting.FogStart,
+        FogEnd = Lighting.FogEnd,
+        FogColor = Lighting.FogColor,
+        GlobalShadows = Lighting.GlobalShadows,
+        EnvironmentDiffuseScale = Lighting.EnvironmentDiffuseScale,
+        EnvironmentSpecularScale = Lighting.EnvironmentSpecularScale,
+        ExposureCompensation = Lighting.ExposureCompensation,
+        GeographicLatitude = Lighting.GeographicLatitude
+    }
+    
+    -- Clean up any existing FullBright effects
+    for _, effect in pairs(Lighting:GetChildren()) do
+        if effect.Name == "FullBrightColorCorrection" or effect.Name == "FullBrightBloom" then
+            effect:Destroy()
+        end
+    end
+end
+
+local function applyFullBright()
+    -- Save original settings if not already saved
+    if next(originalLightingSettings) == nil then
+        saveOriginalSettings()
+    end
+    
+    -- Apply FullBright settings
+    Lighting.Brightness = 2.5
+    Lighting.Ambient = Color3.new(1, 1, 1)
+    Lighting.OutdoorAmbient = Color3.new(1, 1, 1)
+    Lighting.ClockTime = 14
+    Lighting.FogStart = 999999
+    Lighting.FogEnd = 1000000
+    Lighting.FogColor = Color3.new(1, 1, 1)
+    Lighting.GlobalShadows = false
+    Lighting.EnvironmentDiffuseScale = 0
+    Lighting.EnvironmentSpecularScale = 0
+    Lighting.ExposureCompensation = 0.5
+    Lighting.GeographicLatitude = 0
+    
+    -- Add visual effects
+    local ColorCorrection = Instance.new("ColorCorrectionEffect")
+    ColorCorrection.Name = "FullBrightColorCorrection"
+    ColorCorrection.Brightness = 0.1
+    ColorCorrection.Contrast = 0.1
+    ColorCorrection.Saturation = 0
+    ColorCorrection.TintColor = Color3.new(1, 1, 1)
+    ColorCorrection.Parent = Lighting
+    
+    local Bloom = Instance.new("BloomEffect")
+    Bloom.Name = "FullBrightBloom"
+    Bloom.Intensity = 0.1
+    Bloom.Size = 24
+    Bloom.Threshold = 0.9
+    Bloom.Parent = Lighting
+    
+    fullBrightEnabled = true
+    print("✅ FullBright Applied: Night → Morning, Fog Removed")
+end
+
+local function removeFullBright()
+    if next(originalLightingSettings) == nil then return end
+    
+    -- Restore original settings
+    for setting, value in pairs(originalLightingSettings) do
+        Lighting[setting] = value
+    end
+    
+    -- Remove FullBright effects
+    for _, effect in pairs(Lighting:GetChildren()) do
+        if effect.Name == "FullBrightColorCorrection" or effect.Name == "FullBrightBloom" then
+            effect:Destroy()
+        end
+    end
+    
+    fullBrightEnabled = false
+    print("✅ FullBright Disabled")
+end
+
+local function toggleFullBright()
+    if fullBrightEnabled then
+        removeFullBright()
+        return false
+    else
+        applyFullBright()
+        return true
+    end
+end
+
 --==// BUTTON FUNCTION //==--
 
 local function newButton(txt, callback)
@@ -101,7 +200,7 @@ local function newButton(txt, callback)
     end)
 end
 
---==// BUTTONS (ONLY BRING) //==--
+--==// BUTTONS //==--
 
 -- Bring All Jelly
 newButton("🔵 Bring All Jelly", function(b)
@@ -227,6 +326,22 @@ newButton("🦀 RESCUE ALL LOSTED", function(b)
     b.Text = "🦀 RESCUE ALL LOSTED"
 end)
 
+-- Full Bright Toggle Button
+local fullBrightButton
+fullBrightButton = newButton("🌙 Full Bright: OFF", function(b)
+    local enabled = toggleFullBright()
+    if enabled then
+        b.Text = "☀️ Full Bright: ON"
+        b.BackgroundColor3 = Color3.fromRGB(40, 60, 80) -- Different color when ON
+    else
+        b.Text = "🌙 Full Bright: OFF"
+        b.BackgroundColor3 = Color3.fromRGB(30, 30, 45) -- Original color when OFF
+    end
+end)
+
+-- Save original lighting settings when script starts
+saveOriginalSettings()
+
 -- Status Label
 local statusLabel = Instance.new("TextLabel", contentFrame)
 statusLabel.Size = UDim2.new(1, 0, 0, 20)
@@ -240,7 +355,7 @@ statusLabel.TextXAlignment = Enum.TextXAlignment.Center
 -- NOTIFICAÇÃO 
 game:GetService("StarterGui"):SetCore("SendNotification", {
     Title = "Sponge Hub";
-    Text = "Script Loaded - Bring Only";
+    Text = "Script Loaded - Full Bright Added";
     Icon = "rbxassetid://6034509993";
     Duration = 5;
     Button1 = "OK"
@@ -257,6 +372,6 @@ task.spawn(function()
 end)
 
 print("=================================")
-print("🧽 SPONGE HUB - Bring Only")
+print("🧽 SPONGE HUB - Bring + Full Bright")
 print("Script made Sponge Scripts!")
 print("=================================")
